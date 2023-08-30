@@ -28,7 +28,6 @@ class ImportDirectoryOT(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         # Get the list of filenames and sort them using the custom numerical_sort function
         sorted_filenames = sorted(os.listdir(self.directory), key=lambda x: self.numerical_sort(x))
-        print(sorted_filenames)
 
         json_files = []
 

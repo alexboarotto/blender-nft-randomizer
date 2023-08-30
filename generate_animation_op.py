@@ -1,4 +1,5 @@
 import math
+from time import sleep
 import bpy
 from bpy.types import Operator
 
@@ -17,11 +18,10 @@ class GenerateAnimationOP(Operator):
     
     def hide_collection(self, collection):
         for obj in bpy.data.collections[collection.name].all_objects[:]:
-            if not obj.hide_render or not obj.hide_viewport:
-                obj.hide_render = True
-                obj.hide_viewport = True
-                obj.keyframe_insert("hide_viewport", frame=bpy.context.scene.frame_current)
-                obj.keyframe_insert("hide_render", frame=bpy.context.scene.frame_current)
+            obj.hide_render = True
+            obj.hide_viewport = True
+            obj.keyframe_insert("hide_viewport", frame=bpy.context.scene.frame_current)
+            obj.keyframe_insert("hide_render", frame=bpy.context.scene.frame_current)
 
         for child_collection in collection.children:
             self.hide_collection(child_collection)
@@ -31,6 +31,7 @@ class GenerateAnimationOP(Operator):
         for obj in bpy.data.objects:
             obj.animation_data_clear()
 
+
         # Access the value of the deferred property from the scene
         collection = context.scene.CharacterCollection if not context.scene.CharacterCollection is None else bpy.data.collections[0]
         # Do something with the collection
@@ -39,12 +40,11 @@ class GenerateAnimationOP(Operator):
         else:
             print("No collection selected")
 
+        self.hide_collection(bpy.data.collections[collection.name])
+
         bpy.context.scene.frame_start = 0
         bpy.context.scene.frame_end = len(Data.data)-1
         bpy.context.scene.frame_current = 0
-
-        self.hide_collection(collection)
-
 
         for index, nft in enumerate(Data.data):
             bpy.context.scene.frame_current = index
@@ -53,6 +53,8 @@ class GenerateAnimationOP(Operator):
                 obj_key = att["value"]
                 obj = bpy.data.objects.get(obj_key, None)
                 if obj is not None:
+                    if index <= 0:
+                        print(obj)
                     obj.hide_render = False
                     obj.hide_viewport = False
                     obj.keyframe_insert("hide_viewport", frame=bpy.context.scene.frame_current)
